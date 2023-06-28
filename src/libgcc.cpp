@@ -29,4 +29,20 @@ unsigned int __udivsi3(unsigned int a, unsigned int b) {
 
     return q;
 }
+
+unsigned int __umodsi3(unsigned int a, unsigned int b) {
+    if (sizeof(unsigned int) > sizeof(unsigned short) && a <= 0xFFFF && b <= 0xFFFF) { // use 16 bit if possible
+        return (unsigned short)a % (unsigned short)b;
+    }
+
+    unsigned int r = a;
+    unsigned int q = 0;
+
+    while (b <= r) {
+        r -= b;
+        q++;
+    }
+
+    return r;
+}
 }
