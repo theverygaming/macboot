@@ -20,7 +20,6 @@ static bool disk_byte_read(uint32_t offset, void *buf, size_t n) {
     return s;
 }
 
-// #define MAGIC (0x666F7073)
 #define MAGIC (0x66786F6573203A33)
 
 struct memmap_entry {
@@ -58,20 +57,31 @@ struct bootheader {
 };
 
 static struct memmap_entry *gen_memmap(uint32_t kstart, uint32_t kend) {
-    // would use malloc later but for now this will work perfectly fine
-    static memmap_entry e3{
+    // NOTE: 0x10000 - 0x11000 is guranteed to be contained in range RAMBase - MemTop by startup.S
+    uint32_t memstart = *rom::RAMBase;
+    if (memstart < 0x1000) {
+        memstart = 0x1000;
+    }
+    uint32_t memtop = *rom::MemTop;
+
+    static memmap_entry e4{
         .base = kstart,
         .size = kend - kstart,
         .type = memmap_entry::type::KERNEL,
         .next = nullptr};
+    static memmap_entry e3{
+        .base = memstart,
+        .size = 0x10000 - memstart,
+        .type = memmap_entry::type::USABLE,
+        .next = &e4};
     static memmap_entry e2{
-        .base = 0x6000,
-        .size = 0xB000,
+        .base = 0x10000,
+        .size = 0x1000,
         .type = memmap_entry::type::BOOTLOADER_RECLAIMABLE,
         .next = &e3};
     static memmap_entry e1{
-        .base = *rom::RAMBase, // below 0x1000 there are various variables from the ROM we don't want to touch
-        .size = *rom::MemTop - 0x1000,
+        .base = 0x11000,
+        .size = *rom::MemTop - 0x11000,
         .type = memmap_entry::type::USABLE,
         .next = &e2};
     if (e1.base < 0x1000) {

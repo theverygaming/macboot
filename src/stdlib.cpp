@@ -15,16 +15,3 @@ extern "C" void *memcpy(void *dst, const void *src, size_t n) {
         *p++ = *src_u++;
     return dst;
 }
-
-#define MALLOC_BASE 0x6000
-#define MALLOC_END 0x7000
-extern "C" void *malloc(size_t size) {
-    static uint32_t adr = MALLOC_BASE;
-    if (adr + size >= MALLOC_END) {
-        screen::puts("malloc out of memory\n");
-        return nullptr;
-    }
-    void *ret = (void *)adr;
-    adr += size;
-    return ret;
-}
