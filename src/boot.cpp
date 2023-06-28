@@ -14,7 +14,7 @@ static bool disk_byte_read(uint32_t offset, void *buf, size_t n) {
     offset += 512 * sectors;
     buf = (void *)((uint32_t)buf + (512 * sectors));
 
-    uint8_t buf_l[512];
+    static uint8_t buf_l[512];
     bool s = rom::read_boot_disk(offset, buf_l, 1);
     memcpy(buf, buf_l, n);
     return s;
