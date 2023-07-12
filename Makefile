@@ -1,7 +1,7 @@
 CXX = m68k-elf-g++
 LD = m68k-elf-ld
 OBJCOPY = m68k-elf-objcopy
-CXXFLAGS = -I./src -Os -march=68000 -nostdlib -fno-pie -fno-pic -fno-stack-protector -ffreestanding -fno-threadsafe-statics -fno-exceptions -Wall
+CXXFLAGS = -I./include -Os -march=68000 -nostdlib -nostdinc -fno-pie -fno-pic -fno-stack-protector -ffreestanding -fno-threadsafe-statics -fno-exceptions -Wall -g
 
 HEADERS_CPP = $(shell find ./src -name "*.h") # fuck it, lets just do this..
 
@@ -20,7 +20,7 @@ all:
 startup: $(OBJECTS_ASM) $(OBJECTS_CPP)
 	@$(LD) -T linker.ld -nostdlib $^ -o startup.o
 	@$(OBJCOPY) -O binary startup.o startup
-	@truncate -s 4096 startup
+	@truncate -s 12288 startup
 
 obj/%.ocpp: src/%.cpp $(HEADERS_CPP) 
 	@echo "    CXX $<"

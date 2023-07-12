@@ -1,4 +1,4 @@
-#include <boot.h>
+#include <boot/boot.h>
 #include <rom/globals.h>
 #include <screen.h>
 #include <stdlib.h>
