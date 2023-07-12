@@ -4,3 +4,6 @@
 *.ocpp
 obj/
 startup
+example/kernel
+disk.img
+fs.img

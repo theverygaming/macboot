@@ -22,6 +22,9 @@ bool rom::read_boot_disk(uint32_t offset, void *buf, uint32_t blocks) {
     if (blocks == 0) {
         return true;
     }
+    if (offset % 512 != 0) {
+        return false;
+    }
 
     struct rom_param_block b = {
         ._unused0 = {0},

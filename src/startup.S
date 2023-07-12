@@ -38,28 +38,22 @@ start:
     .short 0xa057 // _SetAppBase
     move.l 0x2a6, 0x118 // SysZone -> TheZone
 
-    // check if there is 4K of memory at 0x10000
+    // check if there is enough of memory at _bootloader_start
     move.l 0x0108, %d0      // get memory top pointer
     move.l #0xAB01, %d7
-    cmpi.l #0x11000,%d0
+    cmpi.l #_bootloader_end,%d0
     ble error
     move.l 0x02b2, %d0      // get memory base pointer
     move.l #0xAB02, %d7
-    cmpi.l #0x10000,%d0
+    cmpi.l #_bootloader_start,%d0
     bgt error
 
-    /*
-    // allocate memory for disk read
-    move.l #4096, %a0
-    .short 0xA11E
-    move.l %a0, %d0
-    move.l #0xAB03, %d7
-    cmpi.l #0,%d0
-    beq error
-    move.l %a0, %a1
-    */
+    move.l #_bootloader_start, %a1
 
-    move.l #0x10000, %a1
+    // calculate amount of memory required for bootloader - result in %d1
+    move.l #_bootloader_end, %d1
+    move.l #_bootloader_start, %d2
+    sub.l %d2, %d1
 
     lea	IOParam_ioVRefNum(%pc),%a0
     move.w 0x0210, (%a0)             // BootDrive
@@ -68,7 +62,7 @@ start:
     lea	IOParam_ioBuffer(%pc),%a0
     move.l %a1, (%a0)
     lea	IOParam_ioReqCount(%pc),%a0
-    move.l #4096, (%a0)
+    move.l %d1, (%a0)
     
     lea	IOParam(%pc),%a0
     //.short 0xA202                    // _Read (synchronous) - for some reason apple docs are wrong here? bit 9 set does not work?

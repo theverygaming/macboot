@@ -15,12 +15,11 @@ OBJECTS_ASM = $(patsubst ./src/%, ./obj/%,$(patsubst %.S, %.oS, $(SOURCES_ASM)))
 
 all: 
 	@mkdir -p obj
-	@$(MAKE) startup
+	@$(MAKE) kernel
 
-startup: $(OBJECTS_ASM) $(OBJECTS_CPP)
-	@$(LD) -T linker.ld -nostdlib $^ -o startup.o
-	@$(OBJCOPY) -O binary startup.o startup
-	@truncate -s 12288 startup
+kernel: $(OBJECTS_ASM) $(OBJECTS_CPP)
+	@$(LD) -T linker.ld -nostdlib $^ -o kernel.o
+	@$(OBJCOPY) -O binary kernel.o kernel
 
 obj/%.ocpp: src/%.cpp $(HEADERS_CPP) 
 	@echo "    CXX $<"
@@ -33,7 +32,7 @@ obj/%.oS: src/%.S
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	@rm -f startup startup.o
+	@rm -f kernel kernel.o
 	@find . \( -name '*.oS' -o -name '*.ocpp' \) -type f -delete
 
 proper: clean
