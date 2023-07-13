@@ -61,8 +61,8 @@ static inline uint8_t bitget(uint8_t num, uint8_t bit) {
     return (num & (0x1 << bit)) >> bit;
 }
 
-static int xbase = 1;
-static int ybase = 1;
+static uint32_t xbase = 1;
+static uint32_t ybase = 1;
 
 static inline void drawc(unsigned int i) {
     if (xbase + 8 > screen::fb.width) {
@@ -74,17 +74,17 @@ static inline void drawc(unsigned int i) {
     }
 
     bool empty = false;
-    int index = i * 8;
+    uint32_t index = i * 8;
     if (i > sizeof(font) / 8) {
         empty = true;
     }
-    int count = 0;
-    for (int y = ybase; y < ybase + 8; y++) {
+    uint32_t count = 0;
+    for (uint32_t y = ybase; y < ybase + 8; y++) {
         uint8_t g;
         if (!empty) {
             g = font[index + (count / 8)];
         }
-        for (int x = xbase; x < xbase + 8; x++) {
+        for (uint32_t x = xbase; x < xbase + 8; x++) {
             uint8_t offset = count % 8;
             if (empty) {
                 putpx(x, y, 0);
