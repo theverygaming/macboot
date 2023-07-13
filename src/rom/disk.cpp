@@ -26,18 +26,19 @@ bool rom::read_boot_disk(uint32_t offset, void *buf, uint32_t blocks) {
         return false;
     }
 
-    struct rom_param_block b = {
-        ._unused0 = {0},
-        .ioVRefNum = *BootDrive,
-        .ioRefNum = *BtDskRfn,
-        ._unused1 = {0},
-        .ioPermssn = 1, // read-only permission
-        ._unused2 = {0},
-        .ioBuffer = (uint32_t)buf,
-        .ioReqCount = blocks * 512,
-        .ioActCount = 0,
-        .ioPosMode = 0x0001, // read from start of disk
-        .ioPosOffset = offset,
+    struct rom_param_block b;
+    b = {
+        {0},            // _unused0
+        rom::BootDrive, // ioVRefNum
+        rom::BtDskRfn,  // ioRefNum
+        {0},            // _unused1
+        1,              // ioPermssn -  read-only permission
+        {0},            // _unused2
+        (uint32_t)buf,  // ioBuffer
+        blocks * 512,   // ioReqCount
+        0,              // ioActCount
+        1,              // ioPosMode - read from start of disk
+        offset,         // ioPosOffset
     };
     return (_Read(&b) == 0 && b.ioActCount == blocks * 512);
 }

@@ -11,8 +11,8 @@ cd ..
 
 # build filesystem
 touch fs.img
-truncate --size 10M fs.img
-mkfs.fat -F16 fs.img -v
+truncate --size 1M fs.img
+mkfs.fat -F12 fs.img -v
 mmd -i fs.img ::boot
 mcopy -i fs.img example/kernel ::/boot/kernel
 mcopy -i fs.img example/boot.cfg ::/

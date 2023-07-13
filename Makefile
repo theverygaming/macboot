@@ -1,7 +1,8 @@
 CXX = m68k-elf-g++
 LD = m68k-elf-ld
 OBJCOPY = m68k-elf-objcopy
-CXXFLAGS = -I./include -Os -march=68000 -nostdlib -nostdinc -fno-pie -fno-pic -fno-stack-protector -ffreestanding -fno-threadsafe-statics -fno-exceptions -Wall -g
+# -Wno-array-bounds due to "array subscript 0 is outside array bounds" gcc bug (at least afaik it's a gcc bug)
+CXXFLAGS = -I./include -Os -std=c++11 -march=68000 -nostdlib -nostdinc -fno-pie -fno-pic -fno-stack-protector -ffreestanding -fno-threadsafe-statics -fno-exceptions -Wall -Wpedantic -g -Wno-array-bounds
 
 HEADERS_CPP = $(shell find ./src -name "*.h") # fuck it, lets just do this..
 
@@ -28,7 +29,7 @@ obj/%.ocpp: src/%.cpp $(HEADERS_CPP)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 obj/%.oS: src/%.S
-	@echo "    AS $<"
+	@echo "    AS  $<"
 	@mkdir -p $(dir $@)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 

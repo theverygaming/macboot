@@ -1,5 +1,3 @@
-ENTRY(_kentry)
-
 PHYS_START = 0x13000;
 
 SECTIONS {

@@ -19,14 +19,29 @@ extern "C" void *_bootloader_end;
 
 static struct macboot_memmap_response *gen_memmap() {
     // NOTE: BL_BEGIN - BL_END is guranteed to be contained in range RAMBase - MemTop by startup.S
-    uint32_t memstart = *rom::RAMBase;
-    uint32_t memtop = *rom::MemTop;
+    uint32_t memstart = rom::RAMBase;
+    uint32_t memtop = rom::MemTop;
     // we do not want to overwrite ROM variables or even the vector table
     memstart = std::max(memstart, (uint32_t)0x1000);
 
-    static macboot_memmap_response e3 = {.base = memstart, .size = BL_BEGIN - memstart, .type = MACBOOT_MEMMAP_USABLE, .next = nullptr};
-    static macboot_memmap_response e2 = {.base = BL_BEGIN, .size = BL_END - BL_BEGIN, .type = MACBOOT_MEMMAP_BOOTLOADER_RECLAIMABLE, .next = &e3};
-    static macboot_memmap_response e1 = {.base = BL_END, .size = memtop - BL_END, .type = MACBOOT_MEMMAP_USABLE, .next = &e2};
+    static macboot_memmap_response e3 = {
+        memstart,              // base
+        BL_BEGIN - memstart,   // size
+        MACBOOT_MEMMAP_USABLE, // type
+        nullptr                // next
+    };
+    static macboot_memmap_response e2 = {
+        BL_BEGIN,                              // base
+        BL_END - BL_BEGIN,                     // size
+        MACBOOT_MEMMAP_BOOTLOADER_RECLAIMABLE, // type
+        &e3                                    // next
+    };
+    static macboot_memmap_response e1 = {
+        BL_END,                // base
+        memtop - BL_END,       // size
+        MACBOOT_MEMMAP_USABLE, // type
+        &e2                    // next
+    };
 
     return &e1;
 }
@@ -81,8 +96,8 @@ void boot() {
     uint32_t kernelfsize = fat_seek(&fat, &kernel_file, 0, FAT_SEEK_END);
 
     // check if kernel load address conflicts with bootloader space or is outside of RAM
-    if (((kheader.load_address < BL_END) && ((kheader.load_address + kheader.size) > BL_BEGIN)) || (kheader.load_address < *rom::RAMBase) ||
-        (((kheader.load_address + kheader.size)) > *rom::MemTop)) {
+    if (((kheader.load_address < BL_END) && ((kheader.load_address + kheader.size) > BL_BEGIN)) || (kheader.load_address < rom::RAMBase) ||
+        (((kheader.load_address + kheader.size)) > rom::MemTop)) {
         screen::puts("ERR   kernel load address is not in usable memory\n");
         return;
     }
