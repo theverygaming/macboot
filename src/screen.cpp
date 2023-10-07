@@ -49,6 +49,25 @@ static rom::GrafPort qd_gp;
 struct screen::fbinfo screen::fb;
 
 static inline void putpx(unsigned int x, unsigned int y, uint8_t state) {
+    if (screen::fb.indexed) {
+        if (screen::fb.bpp <= 8 || true) {
+            uint32_t colors = 2;
+            // pow()
+            for (uint32_t i = 0; (i + 1) < screen::fb.bpp; i++) {
+                colors *= 2;
+            }
+            uint32_t color = colors - 1;
+            uint8_t mask = colors - 1;
+
+            volatile uint8_t *ptr = (volatile uint8_t *)((uint32_t)screen::fb.base + (y * screen::fb.pitch) + (x / screen::fb.bpp));
+            if (state) {
+                *ptr = 0xFF;
+            } else {
+                *ptr = 0;
+            }
+        }
+        return;
+    }
     switch (screen::fb.bpp) {
     case 1:
         volatile uint8_t *ptr = (volatile uint8_t *)((uint32_t)screen::fb.base + (y * screen::fb.pitch) + (x / 8));
@@ -98,12 +117,36 @@ static inline void drawc(unsigned int i) {
 }
 
 void screen::init() {
+    // figured this out thanks to https://emile.sourceforge.net/
     rom::InitGraf(&qd_gp);
-    fb.base = qd_gp.screenBits.baseAddr;
-    fb.width = qd_gp.screenBits.bounds.right - qd_gp.screenBits.bounds.left;
-    fb.height = qd_gp.screenBits.bounds.bottom - qd_gp.screenBits.bounds.top;
-    fb.pitch = qd_gp.screenBits.rowBytes;
-    fb.bpp = 1;
+    struct rom::GDevice *gd = *((struct rom::GDevice **)rom::MainDevice);
+
+    if ((gd == nullptr) || (gd->gdPMap == nullptr) || ((*gd->gdPMap)->baseAddr == nullptr) || (gd == (struct rom::GDevice *)0xAAAAAAAA) ||
+        ((qd_gp.screenBits.bounds.right - qd_gp.screenBits.bounds.left) != ((*gd->gdPMap)->bounds.right - (*gd->gdPMap)->bounds.left)) ||
+        ((qd_gp.screenBits.bounds.bottom - qd_gp.screenBits.bounds.top) != ((*gd->gdPMap)->bounds.bottom - (*gd->gdPMap)->bounds.top))) {
+        fb.base = qd_gp.screenBits.baseAddr;
+        fb.width = qd_gp.screenBits.bounds.right - qd_gp.screenBits.bounds.left;
+        fb.height = qd_gp.screenBits.bounds.bottom - qd_gp.screenBits.bounds.top;
+        fb.pitch = qd_gp.screenBits.rowBytes & 0x3FFF; // upper two bits are flags
+
+        fb.bpp = 1;
+        fb.indexed = false;
+    } else {
+        fb.base = (*gd->gdPMap)->baseAddr;
+        fb.width = (*gd->gdPMap)->bounds.right - (*gd->gdPMap)->bounds.left;
+        fb.height = (*gd->gdPMap)->bounds.bottom - (*gd->gdPMap)->bounds.top;
+        fb.pitch = (*gd->gdPMap)->rowBytes & 0x3FFF; // upper two bits are flags
+
+        if ((((*gd->gdPMap)->rowBytes >> 15) & 0x1) == 0) { // turns out this is a BitMap instead of a PixMap
+            // lets guess it's gonna be 1bpp
+            fb.bpp = 1;
+            fb.indexed = false;
+            return;
+        }
+        fb.bpp = (*gd->gdPMap)->pixelSize;
+
+        fb.indexed = (*gd->gdPMap)->pixelType == 0;
+    }
 }
 
 void screen::clear() {

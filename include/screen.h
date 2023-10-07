@@ -12,5 +12,6 @@ namespace screen {
         uint32_t height;
         uint32_t pitch;
         uint32_t bpp;
+        bool indexed;
     } fb;
 }
