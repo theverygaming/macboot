@@ -3,36 +3,35 @@
 .global _kentry
 .type _kentry, @function
 _kentry:
+    // boot block header - https://developer.apple.com/library/archive/documentation/mac/pdf/Operating_System_Utilities/Start_Mgr.pdf
     .short  0x4C4B              /* boot blocks signature */
-    bra     start               /* entry point to bootcode */
-    .short  0x4418              /* boot blocks version number */
-    .short  0x00                /* used internally */
+    bra     code                /* entry point to bootcode */
+    .short  0x4418              /* boot blocks version number - sill have no idea what half of this means but it seems to work */
+    .short  0x0000              /* reserved */
     
-    // Pascal strings - 16 byte per string (.string has null terminator)
-    .byte 14 
-    .string "foo bar       "    /* System filename */
-    .byte 14 
-    .string "foo bar       "    /* Finder filename */
-    .byte 14 
-    .string "foo bar       "    /* debugger filename */
-    .byte 14 
-    .string "foo bar       "    /* debugger filename */
-    .byte 14 
-    .string "foo bar       "    /* name of startup screen */
-    .byte 14 
-    .string "foo bar       "    /* name of startup program */
-    .byte 14 
-    .string "foo bar       "    /* name of system scrap file */
+    // Pascal strings - 16 byte per string
+    .byte 6
+    .ascii "System         "    /* System filename */
+    .byte 6 
+    .ascii "Finder         "    /* Finder filename */
+    .byte 7 
+    .ascii "Macsbug        "    /* first debugger filename */
+    .byte 12 
+    .ascii "Disassembler   "    /* second debugger filename */
+    .byte 13
+    .ascii "StartUpScreen  "    /* name of startup screen */
+    .byte 6
+    .ascii "Finder         "    /* name of startup program */
+    .byte 14
+    .ascii "Clipboard File "    /* name of system scrap file */
 
-    .short  10                  /* number of FCBs to allocate */
-    .short  20                  /* number of event queue elements */
-    .long   0x00004300          /* system heap size on 128K Mac */
-    .long   0x00008000          /* used internally */
+    .short  0x000C              /* number of FCBs to allocate */
+    .short  0x001E              /* number of event queue elements */
+    .long   0x00004200          /* system heap size on 128K Mac */
+    .long   0x00008000          /* reserved */
 SysHeapSize:
-    .long   0x00020000          /* system heap size on all machines */
-start:
-    //move.w #0x2700, %sr // supervisor set, Interrupt priority 7
-
+    .long   0x0000C000          /* system heap size on machines with 512K or more RAM */
+code:
     move.l 0x2a6,%a0 // SysZone
     add.l %pc@(SysHeapSize),%a0
     .short 0xa057 // _SetAppBase

@@ -27,7 +27,7 @@ obj/%.ocpp: src/%.cpp $(HEADERS_CPP)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 obj/%.oS: src/%.S
-	@echo "    AS $<"
+	@echo "    AS  $<"
 	@mkdir -p $(dir $@)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 

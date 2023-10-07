@@ -7,4 +7,5 @@ namespace rom {
     static volatile const uint32_t &VIA = *(volatile const uint32_t *const)(0x01D4);
     static volatile const uint16_t &BootDrive = *(volatile const uint16_t *const)(0x0210);
     static volatile const uint16_t &BtDskRfn = *(volatile const uint16_t *const)(0x0B34);
+    static volatile const void *&MainDevice = *(volatile const void **const)(0x08A4);
 }
