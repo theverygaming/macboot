@@ -1,7 +1,5 @@
 .vscode/
 *.o
-*.oS
-*.ocpp
 obj/
 startup
 example/kernel
