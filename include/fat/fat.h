@@ -5,7 +5,7 @@
 struct fat_driver_state {
     void (*read_disk)(void *buf, size_t count, size_t offset);
     unsigned int fat_type;
-    size_t disk_part_start;
+    size_t disk_base_offset;
 
     uint32_t fat_start_sector;
     uint32_t fat_size; // in sectors
@@ -23,7 +23,7 @@ struct fat_file_handle {
 };
 
 // returns nonzero value on error
-int init_fat_driver(struct fat_driver_state *ctx, void (*read_disk)(void *buf, uint32_t count, uint32_t offset), uint32_t disk_part_start);
+int init_fat_driver(struct fat_driver_state *ctx, void (*read_disk)(void *buf, uint32_t count, uint32_t offset), uint32_t disk_base_offset);
 
 // returns false on error
 bool fat_open_file(struct fat_driver_state *ctx, struct fat_file_handle *file, const char *path);

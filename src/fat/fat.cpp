@@ -102,7 +102,7 @@ static bool fat_get_next_cluster(struct fat_driver_state *ctx, uint32_t cluster,
     switch (ctx->fat_type) {
     case 12: {
         uint16_t value;
-        ctx->read_disk(&value, sizeof(value), ctx->disk_part_start + (fat_sector * ctx->bpb.bytes_per_sector) + sector_byte_offset);
+        ctx->read_disk(&value, sizeof(value), ctx->disk_base_offset + (fat_sector * ctx->bpb.bytes_per_sector) + sector_byte_offset);
         value = swap_le(value);
         if (cluster & 0x1) { // is this an odd cluster?
             *next = value >> 4;
@@ -113,14 +113,14 @@ static bool fat_get_next_cluster(struct fat_driver_state *ctx, uint32_t cluster,
     }
     case 16: {
         uint16_t value;
-        ctx->read_disk(&value, sizeof(value), ctx->disk_part_start + (fat_sector * ctx->bpb.bytes_per_sector) + sector_byte_offset);
+        ctx->read_disk(&value, sizeof(value), ctx->disk_base_offset + (fat_sector * ctx->bpb.bytes_per_sector) + sector_byte_offset);
         value = swap_le(value);
         *next = value;
         return *next < 0xFFF8;
     }
     case 32: {
         uint32_t value;
-        ctx->read_disk(&value, sizeof(value), ctx->disk_part_start + (fat_sector * ctx->bpb.bytes_per_sector) + sector_byte_offset);
+        ctx->read_disk(&value, sizeof(value), ctx->disk_base_offset + (fat_sector * ctx->bpb.bytes_per_sector) + sector_byte_offset);
         value = swap_le(value);
         *next = value;
         return *next < 0x0FFFFFF8;
@@ -142,7 +142,7 @@ static uint32_t get_sector_count(struct fat_driver_state *ctx) {
 static unsigned int detect_fat_type(struct fat_driver_state *ctx) {
     // read EBPB
     struct fat_ebpb_32 ebpb;
-    ctx->read_disk(&ebpb, sizeof(ebpb), ctx->disk_part_start + sizeof(ctx->bpb));
+    ctx->read_disk(&ebpb, sizeof(ebpb), ctx->disk_base_offset + sizeof(ctx->bpb));
     SWAP_fat_ebpb_32(ebpb);
 
     uint32_t sectors_per_fat = ctx->bpb.sectors_per_fat;
@@ -167,12 +167,12 @@ static unsigned int detect_fat_type(struct fat_driver_state *ctx) {
     }
 }
 
-int init_fat_driver(struct fat_driver_state *ctx, void (*read_disk)(void *buf, uint32_t count, uint32_t offset), uint32_t disk_part_start) {
+int init_fat_driver(struct fat_driver_state *ctx, void (*read_disk)(void *buf, uint32_t count, uint32_t offset), uint32_t disk_base_offset) {
     ctx->read_disk = read_disk;
-    ctx->disk_part_start = disk_part_start;
+    ctx->disk_base_offset = disk_base_offset;
 
     // read BPB
-    ctx->read_disk(&ctx->bpb, sizeof(ctx->bpb), ctx->disk_part_start + 0);
+    ctx->read_disk(&ctx->bpb, sizeof(ctx->bpb), ctx->disk_base_offset + 0);
     SWAP_fat_bpb(ctx->bpb);
 
     // bpb sanity checks
@@ -201,7 +201,7 @@ int init_fat_driver(struct fat_driver_state *ctx, void (*read_disk)(void *buf, u
 
     if (ctx->fat_type == 32) {
         struct fat_ebpb_32 ebpb;
-        ctx->read_disk(&ebpb, sizeof(ebpb), ctx->disk_part_start + sizeof(ctx->bpb));
+        ctx->read_disk(&ebpb, sizeof(ebpb), ctx->disk_base_offset + sizeof(ctx->bpb));
         SWAP_fat_ebpb_32(ebpb);
         ctx->fat_size = ebpb.sectors_per_fat;
         ctx->fat32_root_cluster = ebpb.root_cluster_number;
@@ -237,13 +237,13 @@ bool fat_open_file(struct fat_driver_state *ctx, struct fat_file_handle *file, c
         bool found = false;
         while (is_root_dir ? root_dir_counter < root_dir_ents : true) {
             if (is_root_dir) {
-                ctx->read_disk(&ent, sizeof(ent), ctx->disk_part_start + root_dir_start + (root_dir_counter * sizeof(ent)));
+                ctx->read_disk(&ent, sizeof(ent), ctx->disk_base_offset + root_dir_start + (root_dir_counter * sizeof(ent)));
                 SWAP_fat_83_dirent(ent);
                 root_dir_counter++;
             } else {
                 ctx->read_disk(&ent,
                                sizeof(ent),
-                               ctx->disk_part_start + (fat_cluster_to_sector(ctx, dir_current_cluster) * ctx->bpb.bytes_per_sector) +
+                               ctx->disk_base_offset + (fat_cluster_to_sector(ctx, dir_current_cluster) * ctx->bpb.bytes_per_sector) +
                                    (dir_current_cluster_index * sizeof(ent)));
                 SWAP_fat_83_dirent(ent);
                 dir_current_cluster_index++;
@@ -346,7 +346,7 @@ uint32_t fat_read(struct fat_driver_state *ctx, struct fat_file_handle *file, vo
 
         ctx->read_disk(buf + (count - leftover_read_count),
                        read_amount,
-                       ctx->disk_part_start + (fat_cluster_to_sector(ctx, current_cluster) * ctx->bpb.bytes_per_sector) + current_cluster_offset);
+                       ctx->disk_base_offset + (fat_cluster_to_sector(ctx, current_cluster) * ctx->bpb.bytes_per_sector) + current_cluster_offset);
 
         current_cluster_offset += read_amount;
         file->seekpos += read_amount;
