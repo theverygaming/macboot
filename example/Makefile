@@ -4,7 +4,7 @@ endif
 CXX = $(CROSS_COMPILE)g++
 LD = $(CROSS_COMPILE)ld
 OBJCOPY = $(CROSS_COMPILE)objcopy
-CXXFLAGS = -I./include -Os -nostdlib -nostdinc -fno-pie -fno-pic -fno-stack-protector -ffreestanding -fno-threadsafe-statics -fno-exceptions -Wall
+CXXFLAGS = -I./include -I./src/arch/$(ARCH)/include -Os -nostdlib -nostdinc -fno-pie -fno-pic -fno-stack-protector -ffreestanding -fno-threadsafe-statics -fno-exceptions -Wall
 
 _FIND_WITH_ARCH = find ./src -path './src/arch/*' ! -path './src/arch/$(ARCH)' ! -path './src/arch/$(ARCH)/*' -prune -o
 SOURCES_CPP = $(shell $(_FIND_WITH_ARCH) -name "*.cpp" -print)
