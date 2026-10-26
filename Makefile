@@ -23,7 +23,7 @@ all:
 	@$(MAKE) startup
 
 startup: $(OBJECTS_ASM) $(OBJECTS_CPP)
-	@$(LD) -T ./src/arch/$(ARCH)/linker.ld -nostdlib $^ -o startup.o
+	@$(LD) -T ./src/arch/$(ARCH)/linker.ld $(LDFLAGS) $^ -o startup.o
 	@$(OBJCOPY) -O binary startup.o startup
 	@truncate -s 12288 startup
 

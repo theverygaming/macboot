@@ -18,7 +18,7 @@ all:
 	@$(MAKE) kernel
 
 kernel: $(OBJECTS_CPP)
-	@$(LD) -T ./src/arch/$(ARCH)/linker.ld -nostdlib $^ -o kernel.o
+	@$(LD) -T ./src/arch/$(ARCH)/linker.ld $(LDFLAGS) $^ -o kernel.o
 	@$(OBJCOPY) -O binary kernel.o kernel
 
 obj/%.o: src/%.cpp
