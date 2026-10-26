@@ -1,4 +1,4 @@
-#include <rom/error.h>
+#include <arch/rom/error.h>
 
 extern "C" void _SysError(uint16_t code);
 

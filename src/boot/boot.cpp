@@ -1,52 +1,37 @@
-#include <algorithm>
 #include <boot/boot.h>
 #include <boot/config.h>
 #include <bumpalloc.h>
 #include <disk.h>
 #include <fat/fat.h>
-#include <rom/globals.h>
 #include <screen.h>
 #include <stdlib.h>
 #include <types.h>
-
-#define MACBOOT_HAS_STDINT
-#include <proto.h>
-
-extern "C" void *_bootloader_start;
-extern "C" void *_bootloader_end;
-#define BL_BEGIN ((uint32_t)&_bootloader_start)
-#define BL_END   ((uint32_t)&_bootloader_end)
+#include <memmap.h>
 
 static struct macboot_memmap_response *gen_memmap() {
-    // NOTE: BL_BEGIN - BL_END is guranteed to be contained in range RAMBase - MemTop by startup.S
-    uint32_t memstart = rom::RAMBase;
-    uint32_t memtop = rom::MemTop;
-    // we do not want to overwrite ROM variables or even the vector table
-    memstart = std::max(memstart, (uint32_t)0x1000);
+    struct macboot_memmap_response *first = nullptr;
+    struct macboot_memmap_response *prev = nullptr;
+    paddr_t base;
+    size_t size;
+    int type;
+    void *ctx = nullptr;
+    while (memmap::iter(&base, &size, &type, &ctx)) {
+        struct macboot_memmap_response *current = (struct macboot_memmap_response *)bump_malloc(sizeof(struct macboot_memmap_response));
+        current->base = base;
+        current->size = size;
+        current->type = type;
+        current->next = nullptr;
+        if (first == nullptr) {
+            first = current;
+        }
+        if (prev != nullptr) {
+            prev->next = current;
+        }
+        prev = current;
+    }
 
-    static macboot_memmap_response e3 = {
-        memstart,              // base
-        BL_BEGIN - memstart,   // size
-        MACBOOT_MEMMAP_USABLE, // type
-        nullptr                // next
-    };
-    static macboot_memmap_response e2 = {
-        BL_BEGIN,                              // base
-        BL_END - BL_BEGIN,                     // size
-        MACBOOT_MEMMAP_BOOTLOADER_RECLAIMABLE, // type
-        &e3                                    // next
-    };
-    static macboot_memmap_response e1 = {
-        BL_END,                // base
-        memtop - BL_END,       // size
-        MACBOOT_MEMMAP_USABLE, // type
-        &e2                    // next
-    };
-
-    return &e1;
+    return first;
 }
-
-extern "C" void _kernelentry(uint32_t sp, uint32_t kjmp); // kernelentry.S
 
 void boot() {
     struct fat_driver_state fat;
@@ -57,7 +42,7 @@ void boot() {
                     screen::puts("ERR   disk read error\n");
                 }
             },
-            BL_END - BL_BEGIN) != 0) {
+            disk::get_boot_fat_offset()) != 0) {
         screen::puts("ERR   could not initialize FAT\n");
         return;
     }
@@ -96,8 +81,21 @@ void boot() {
     uint32_t kernelfsize = fat_seek(&fat, &kernel_file, 0, FAT_SEEK_END);
 
     // check if kernel load address conflicts with bootloader space or is outside of RAM
-    if (((kheader.load_address < BL_END) && ((kheader.load_address + kheader.size) > BL_BEGIN)) || (kheader.load_address < rom::RAMBase) ||
-        (((kheader.load_address + kheader.size)) > rom::MemTop)) {
+    paddr_t base;
+    size_t size;
+    int type;
+    void *ctx = nullptr;
+    bool within_usable_mem = false;
+    while (memmap::iter(&base, &size, &type, &ctx)) {
+        if (type != MACBOOT_MEMMAP_USABLE) {
+            continue;
+        }
+
+        if ((kheader.load_address >= base) && ((kheader.load_address + kheader.size) < (base + size))) {
+            within_usable_mem = true;
+        }
+    }
+    if (!within_usable_mem) {
         screen::puts("ERR   kernel load address is not in usable memory\n");
         return;
     }
@@ -189,13 +187,6 @@ void boot() {
         }
     }
 
-    screen::puts("OK    jumping to kernel\n");
-    void *newsp = bump_malloc(1024);
-    if (newsp == nullptr) {
-        screen::puts("ERR   out of memory\n");
-        return;
-    }
-    uint32_t sp = (uint32_t)newsp;
-    sp += 1024; // stack grows downwards
-    _kernelentry(sp, (uint32_t)kheader.kmain);
+    screen::puts("OK    preparing kernel entry\n");
+    enter_kernel(&kheader);
 }

@@ -73,7 +73,7 @@ code:
     jmp (%a1,(entry - _kentry))
 
 entry:
-    bsr _kcppentry
+    bsr _cppentry
 
     move.l #0xE926, %d0 // error code
     .short 0xA9C9      // SysError

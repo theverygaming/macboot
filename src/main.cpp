@@ -2,6 +2,7 @@
 #include <screen.h>
 #include <stdlib.h>
 #include <types.h>
+#include <bumpalloc.h>
 
 extern "C" void *_bss_start;
 extern "C" void *_bss_end;
@@ -19,16 +20,16 @@ static void die() {
 
 void experiments();
 
-extern "C" void _kcppentry() {
+extern "C" void _cppentry() {
     clearbss();
+    bumpalloc_init();
     screen::init();
     screen::clear();
     screen::puts("OK    welcome to the funne bootloader\n");
 
-    experiments();
+    // experiments();
 
     boot();
 
-    // rom::syserror(0x69);
     die();
 }

@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <bumpalloc.h>
 #include <disk.h>
-#include <rom/disk.h>
+#include <arch/rom/disk.h>
 #include <screen.h>
 #include <stdlib.h>
 
@@ -43,4 +43,13 @@ bool disk::read(uint32_t offset, void *_buf, size_t n) {
         bump_dealloc(512);
         return true;
     }
+}
+
+extern "C" void *_bootloader_start;
+extern "C" void *_bootloader_end;
+#define BL_BEGIN ((uint32_t)&_bootloader_start)
+#define BL_END   ((uint32_t)&_bootloader_end)
+
+size_t disk::get_boot_fat_offset() {
+    return BL_END - BL_BEGIN;
 }

@@ -1,5 +1,5 @@
-#include <rom/disk.h>
-#include <rom/globals.h>
+#include <arch/rom/disk.h>
+#include <arch/rom/globals.h>
 #include <types.h>
 
 struct __attribute__((packed)) rom_param_block {

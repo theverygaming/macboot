@@ -18,3 +18,5 @@ typedef __INT64_TYPE__ int64_t;
 #endif
 
 typedef uint32_t size_t;
+typedef uint32_t uintptr_t;
+typedef uint32_t paddr_t;

@@ -30,7 +30,7 @@ SECTIONS {
 		KEEP(*(.bss))
 		_bss_end = ABSOLUTE(.);
 	}>ram
-	
+
 	_malloc_begin = ABSOLUTE(.);
 
 	. = PHYS_START + PHYS_LEN;

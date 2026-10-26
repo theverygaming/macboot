@@ -1,4 +1,4 @@
-#include <rom/quickdraw.h>
+#include <arch/rom/quickdraw.h>
 
 extern "C" void _InitGraf(void *ptr);
 
