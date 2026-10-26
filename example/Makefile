@@ -1,27 +1,31 @@
-CXX = m68k-unknown-linux-gnu-g++
-LD = m68k-unknown-linux-gnu-ld
-OBJCOPY = m68k-unknown-linux-gnu-objcopy
-CXXFLAGS = -I./include -Os -march=68000 -nostdlib -nostdinc -fno-pie -fno-pic -fno-stack-protector -ffreestanding -fno-threadsafe-statics -fno-exceptions -Wall -g
+ifndef ARCH
+$(error ARCH is not set)
+endif
+CXX = $(CROSS_COMPILE)g++
+LD = $(CROSS_COMPILE)ld
+OBJCOPY = $(CROSS_COMPILE)objcopy
+CXXFLAGS = -I./include -Os -nostdlib -nostdinc -fno-pie -fno-pic -fno-stack-protector -ffreestanding -fno-threadsafe-statics -fno-exceptions -Wall
 
-HEADERS_CPP = $(shell find ./src -name "*.h") # fuck it, lets just do this..
-
-SOURCES_CPP = $(shell find ./src -name "*.cpp")
+_FIND_WITH_ARCH = find ./src -path './src/arch/*' ! -path './src/arch/$(ARCH)' ! -path './src/arch/$(ARCH)/*' -prune -o
+SOURCES_CPP = $(shell $(_FIND_WITH_ARCH) -name "*.cpp" -print)
 
 OBJECTS_CPP = $(patsubst ./src/%, ./obj/%,$(patsubst %.cpp, %.o, $(SOURCES_CPP)))
+
+include ./src/arch/$(ARCH)/Makefile
 
 all:
 	@mkdir -p obj
 	@$(MAKE) kernel
 
 kernel: $(OBJECTS_CPP)
-	@$(LD) -T linker.ld -nostdlib $^ -o kernel.o
+	@$(LD) -T ./src/arch/$(ARCH)/linker.ld -nostdlib $^ -o kernel.o
 	@$(OBJCOPY) -O binary kernel.o kernel
 
-obj/%.o: src/%.cpp $(HEADERS_CPP)
+obj/%.o: src/%.cpp
 	@echo "    CXX $<"
 	@mkdir -p $(dir $@)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	@rm -f kernel kernel.o
+	@rm -f kernel
 	@find . -name '*.o' -type f -delete

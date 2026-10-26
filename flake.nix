@@ -24,16 +24,23 @@
         pkgs = import nixpkgs {
           inherit system;
         };
+        common-deps = with pkgs; [
+          mtools
+          dosfstools
+        ];
       in
       rec {
         devShells.m68k = pkgs.stdenv.mkDerivation {
-          name = "macboot dev";
-          buildInputs = with pkgs; [
-            pkgsCross.m68k.buildPackages.gcc
-            mtools
-            dosfstools
-            nur-theverygaming.packages.${system}.minivmac
-          ];
+          name = "macboot dev m68k";
+          buildInputs =
+            with pkgs;
+            [
+              pkgsCross.m68k.buildPackages.gcc
+              nur-theverygaming.packages.${system}.minivmac
+            ]
+            ++ common-deps;
+          ARCH = "m68k";
+          CROSS_COMPILE = "m68k-unknown-linux-gnu-";
         };
       }
     );
