@@ -13,18 +13,22 @@
 extern "C" {
 #endif
 
+typedef uint32_t macboot_size_t;
+typedef uint32_t macboot_uintptr_t;
+typedef uint32_t macboot_paddr_t;
+
 #define MACBOOT_KERNEL_HEADER_ID \
     { MAGIC1, MAGIC3 }
 struct __attribute__((packed)) macboot_kernel_header {
     uint64_t id[2];
-    uint32_t load_address; // physical address where kernel executable will be loaded
-    uint32_t size;         // size in memory (including .bss) - NOT the size on disk
+    macboot_uintptr_t load_address; // physical address where kernel executable will be loaded
+    macboot_size_t size;         // size in memory (including .bss) - NOT the size on disk
     void (*kmain)();
 };
 
 struct __attribute__((packed)) macboot_kmem_response {
-    uint32_t base;
-    uint32_t size;
+    macboot_uintptr_t base;
+    macboot_size_t size;
 };
 
 #define MACBOOT_KMEM_REQUEST_ID \
@@ -38,8 +42,8 @@ struct __attribute__((packed)) macboot_kmem_request {
 #define MACBOOT_MEMMAP_RESERVED               (2)
 #define MACBOOT_MEMMAP_BOOTLOADER_RECLAIMABLE (3)
 struct __attribute__((packed)) macboot_memmap_response {
-    uint32_t base;
-    uint32_t size;
+    macboot_paddr_t base;
+    macboot_size_t size;
     int type;
     struct macboot_memmap_response *next;
 };
@@ -52,11 +56,11 @@ struct __attribute__((packed)) macboot_memmap_request {
 };
 
 struct __attribute__((packed)) macboot_framebuffer_response {
-    uint32_t base;
-    uint32_t width;
-    uint32_t height;
-    uint32_t pitch;
-    uint32_t bpp;
+    macboot_uintptr_t base;
+    macboot_size_t width;
+    macboot_size_t height;
+    macboot_size_t pitch;
+    unsigned short bpp;
 };
 
 #define MACBOOT_FRAMEBUFFER_REQUEST_ID \
