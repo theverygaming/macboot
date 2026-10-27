@@ -19,11 +19,13 @@ void screen::init() {
 
         fb.bpp = 1;
         fb.indexed = false;
+        fb.bit_be = true;
     } else {
         fb.base = (*gd->gdPMap)->baseAddr;
         fb.width = (*gd->gdPMap)->bounds.right - (*gd->gdPMap)->bounds.left;
         fb.height = (*gd->gdPMap)->bounds.bottom - (*gd->gdPMap)->bounds.top;
         fb.pitch = (*gd->gdPMap)->rowBytes & 0x3FFF; // upper two bits are flags
+        fb.bit_be = true;
 
         if ((((*gd->gdPMap)->rowBytes >> 15) & 0x1) == 0) { // turns out this is a BitMap instead of a PixMap
             // lets guess it's gonna be 1bpp

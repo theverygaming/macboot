@@ -67,7 +67,8 @@ static inline void putpx(unsigned int x, unsigned int y, uint8_t state) {
     switch (screen::fb.bpp) {
     case 1:
         volatile uint8_t *ptr = (volatile uint8_t *)((uint32_t)screen::fb.base + (y * screen::fb.pitch) + (x / 8));
-        *ptr ^= (-state ^ *ptr) & (1 << (7 - (x % 8)));
+        unsigned int bitpos = !screen::fb.bit_be ? x % 8 : 7 - (x % 8);
+        *ptr ^= (-state ^ *ptr) & (1 << bitpos);
         break;
     }
 }

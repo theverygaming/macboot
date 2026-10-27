@@ -13,5 +13,6 @@ namespace screen {
         uint32_t pitch;
         uint32_t bpp;
         bool indexed;
+        bool bit_be; // if true the rightmost pixel is LSB, not MSB
     } fb;
 }
