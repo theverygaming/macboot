@@ -25,4 +25,3 @@ SECTIONS {
 
 	_kernel_end = ABSOLUTE(.);
 }
-_kernel_size = _kernel_end - _kernel_start;

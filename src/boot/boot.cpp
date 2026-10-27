@@ -91,7 +91,7 @@ void boot() {
             continue;
         }
 
-        if ((kheader.load_address >= base) && ((kheader.load_address + kheader.size) < (base + size))) {
+        if ((kheader.load_address >= base) && (kheader.load_end_address < (base + size))) {
             within_usable_mem = true;
         }
     }
@@ -100,12 +100,12 @@ void boot() {
         return;
     }
 
-    if (kernelfsize > kheader.size) {
+    if (kernelfsize > (kheader.load_end_address - kheader.load_address)) {
         screen::puts("ERR   kernel file is larger than reported by header\n");
         return;
     }
 
-    memset((void *)kheader.load_address, 0, kheader.size); // set kernel .bss etc. to zero
+    memset((void *)kheader.load_address, 0, kheader.load_end_address - kheader.load_address); // set kernel .bss etc. to zero
     fat_seek(&fat, &kernel_file, 0, FAT_SEEK_BEGIN);
     if (fat_read(&fat, &kernel_file, (void *)kheader.load_address, kernelfsize) != kernelfsize) {
         screen::puts("ERR   error reading kernel from disk\n");
@@ -130,7 +130,7 @@ void boot() {
             }
             rq->response = rs;
             rs->base = kheader.load_address;
-            rs->size = kheader.size;
+            rs->size = kheader.load_end_address - kheader.load_address;
             break;
         }
         case 2: { // memmap

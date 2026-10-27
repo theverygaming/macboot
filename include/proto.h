@@ -22,7 +22,7 @@ typedef uint32_t macboot_paddr_t;
 struct __attribute__((packed)) macboot_kernel_header {
     uint64_t id[2];
     macboot_uintptr_t load_address; // physical address where kernel executable will be loaded
-    macboot_size_t size;         // size in memory (including .bss) - NOT the size on disk
+    macboot_uintptr_t load_end_address; // physical end address of kernel executable (including .bss) - NOT the size on disk
     void (*kmain)();
 };
 

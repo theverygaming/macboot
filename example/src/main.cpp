@@ -10,13 +10,13 @@ static void die() {
 }
 
 extern "C" void *_kernel_start;
-extern "C" void *_kernel_size;
+extern "C" void *_kernel_end;
 
 void kmain();
 
 // this is required
 static volatile struct macboot_kernel_header __attribute__((section(".entry")))
-header = {.id = MACBOOT_KERNEL_HEADER_ID, .load_address = (macboot_uintptr_t)&_kernel_start, .size = (macboot_size_t)&_kernel_size, .kmain = &kmain};
+header = {.id = MACBOOT_KERNEL_HEADER_ID, .load_address = (macboot_uintptr_t)&_kernel_start, .load_end_address = (macboot_uintptr_t)&_kernel_end, .kmain = &kmain};
 
 // these requests are optional and just here to showcase how requests work
 static volatile struct macboot_terminal_request term = {.id = MACBOOT_TERMINAL_REQUEST_ID, .response = nullptr};
