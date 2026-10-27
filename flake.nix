@@ -1,5 +1,5 @@
 {
-  description = "macboot";
+  description = "littleboot";
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixpkgs-unstable";
@@ -36,7 +36,7 @@
       in
       rec {
         devShells.m68k = pkgs.stdenv.mkDerivation {
-          name = "macboot dev m68k";
+          name = "littleboot dev m68k";
           buildInputs =
             with pkgs;
             [
@@ -48,7 +48,7 @@
           CROSS_COMPILE = "m68k-unknown-linux-gnu-";
         };
         devShells.funnyarch = pkgs.stdenv.mkDerivation {
-          name = "macboot dev funnyarch";
+          name = "littleboot dev funnyarch";
           buildInputs =
             with pkgs;
             [

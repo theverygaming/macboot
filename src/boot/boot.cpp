@@ -8,15 +8,15 @@
 #include <types.h>
 #include <memmap.h>
 
-static struct macboot_memmap_response *gen_memmap() {
-    struct macboot_memmap_response *first = nullptr;
-    struct macboot_memmap_response *prev = nullptr;
+static struct littleboot_memmap_response *gen_memmap() {
+    struct littleboot_memmap_response *first = nullptr;
+    struct littleboot_memmap_response *prev = nullptr;
     paddr_t base;
     size_t size;
     int type;
     void *ctx = nullptr;
     while (memmap::iter(&base, &size, &type, &ctx)) {
-        struct macboot_memmap_response *current = (struct macboot_memmap_response *)bump_malloc(sizeof(struct macboot_memmap_response));
+        struct littleboot_memmap_response *current = (struct littleboot_memmap_response *)bump_malloc(sizeof(struct littleboot_memmap_response));
         current->base = base;
         current->size = size;
         current->type = type;
@@ -67,7 +67,7 @@ void boot() {
     }
     screen::puts("OK    opened kernel file\n");
 
-    struct macboot_kernel_header kheader;
+    struct littleboot_kernel_header kheader;
     if (fat_read(&fat, &kernel_file, &kheader, sizeof(kheader)) != sizeof(kheader)) {
         screen::puts("ERR   error reading kernel file\n");
         return;
@@ -87,7 +87,7 @@ void boot() {
     void *ctx = nullptr;
     bool within_usable_mem = false;
     while (memmap::iter(&base, &size, &type, &ctx)) {
-        if (type != MACBOOT_MEMMAP_USABLE) {
+        if (type != LITTLEBOOT_MEMMAP_USABLE) {
             continue;
         }
 
@@ -122,8 +122,8 @@ void boot() {
         uint32_t id = ptr[1] & 0xFFFFFFFF;
         switch (id) {
         case 1: { // kmem
-            struct macboot_kmem_request *rq = (struct macboot_kmem_request *)ptr;
-            struct macboot_kmem_response *rs = (struct macboot_kmem_response *)bump_malloc(sizeof(struct macboot_kmem_response));
+            struct littleboot_kmem_request *rq = (struct littleboot_kmem_request *)ptr;
+            struct littleboot_kmem_response *rs = (struct littleboot_kmem_response *)bump_malloc(sizeof(struct littleboot_kmem_response));
             if (rs == nullptr) {
                 screen::puts("ERR   out of memory\n");
                 return;
@@ -134,13 +134,13 @@ void boot() {
             break;
         }
         case 2: { // memmap
-            struct macboot_memmap_request *rq = (struct macboot_memmap_request *)ptr;
+            struct littleboot_memmap_request *rq = (struct littleboot_memmap_request *)ptr;
             rq->response = gen_memmap();
             break;
         }
         case 3: { // framebuffer
-            struct macboot_framebuffer_request *rq = (struct macboot_framebuffer_request *)ptr;
-            struct macboot_framebuffer_response *rs = (struct macboot_framebuffer_response *)bump_malloc(sizeof(struct macboot_framebuffer_response));
+            struct littleboot_framebuffer_request *rq = (struct littleboot_framebuffer_request *)ptr;
+            struct littleboot_framebuffer_response *rs = (struct littleboot_framebuffer_response *)bump_malloc(sizeof(struct littleboot_framebuffer_response));
             if (rs == nullptr) {
                 screen::puts("ERR   out of memory\n");
                 return;
@@ -163,8 +163,8 @@ void boot() {
                 bump_dealloc(100);
                 break;
             }
-            struct macboot_cmdline_request *rq = (struct macboot_cmdline_request *)ptr;
-            struct macboot_cmdline_response *rs = (struct macboot_cmdline_response *)bump_malloc(sizeof(struct macboot_cmdline_response));
+            struct littleboot_cmdline_request *rq = (struct littleboot_cmdline_request *)ptr;
+            struct littleboot_cmdline_response *rs = (struct littleboot_cmdline_response *)bump_malloc(sizeof(struct littleboot_cmdline_response));
             if (rs == nullptr) {
                 screen::puts("ERR   out of memory\n");
                 return;
@@ -174,8 +174,8 @@ void boot() {
             break;
         }
         case 5: { // terminal
-            struct macboot_terminal_request *rq = (struct macboot_terminal_request *)ptr;
-            struct macboot_terminal_response *rs = (struct macboot_terminal_response *)bump_malloc(sizeof(struct macboot_terminal_response));
+            struct littleboot_terminal_request *rq = (struct littleboot_terminal_request *)ptr;
+            struct littleboot_terminal_response *rs = (struct littleboot_terminal_response *)bump_malloc(sizeof(struct littleboot_terminal_response));
             if (rs == nullptr) {
                 screen::puts("ERR   out of memory\n");
                 return;

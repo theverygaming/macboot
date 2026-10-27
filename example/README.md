@@ -1,1 +1,1 @@
-## example kernel using macboot
+## example kernel using littleboot

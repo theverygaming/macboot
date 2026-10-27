@@ -4,7 +4,7 @@
 
 extern "C" void _kernelentry(uint32_t sp, uint32_t kjmp); // kernelentry.S
 
-void enter_kernel(struct macboot_kernel_header *kheader) {
+void enter_kernel(struct littleboot_kernel_header *kheader) {
     void *newsp = bump_malloc(1024);
     if (newsp == nullptr) {
         screen::puts("ERR   out of memory\n");

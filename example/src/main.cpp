@@ -1,6 +1,6 @@
 #include <types.h>
 
-#define MACBOOT_HAS_STDINT
+#define LITTLEBOOT_HAS_STDINT
 #include "../../include/proto.h"
 
 static void die() {
@@ -15,13 +15,13 @@ extern "C" void *_kernel_end;
 void kmain();
 
 // this is required
-static volatile struct macboot_kernel_header __attribute__((section(".entry")))
-header = {.id = MACBOOT_KERNEL_HEADER_ID, .load_address = (macboot_uintptr_t)&_kernel_start, .load_end_address = (macboot_uintptr_t)&_kernel_end, .kmain = &kmain};
+static volatile struct littleboot_kernel_header __attribute__((section(".entry")))
+header = {.id = LITTLEBOOT_KERNEL_HEADER_ID, .load_address = (littleboot_uintptr_t)&_kernel_start, .load_end_address = (littleboot_uintptr_t)&_kernel_end, .kmain = &kmain};
 
 // these requests are optional and just here to showcase how requests work
-static volatile struct macboot_terminal_request term = {.id = MACBOOT_TERMINAL_REQUEST_ID, .response = nullptr};
-static volatile struct macboot_cmdline_request cmdline = {.id = MACBOOT_CMDLINE_REQUEST_ID, .response = nullptr};
-static volatile struct macboot_framebuffer_request fb = {.id = MACBOOT_FRAMEBUFFER_REQUEST_ID, .response = nullptr};
+static volatile struct littleboot_terminal_request term = {.id = LITTLEBOOT_TERMINAL_REQUEST_ID, .response = nullptr};
+static volatile struct littleboot_cmdline_request cmdline = {.id = LITTLEBOOT_CMDLINE_REQUEST_ID, .response = nullptr};
+static volatile struct littleboot_framebuffer_request fb = {.id = LITTLEBOOT_FRAMEBUFFER_REQUEST_ID, .response = nullptr};
 
 void kmain() {
     if (term.response != nullptr) {

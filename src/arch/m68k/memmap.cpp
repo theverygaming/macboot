@@ -2,7 +2,7 @@
 #include <arch/rom/globals.h>
 #include <algorithm>
 
-#define MACBOOT_HAS_STDINT
+#define LITTLEBOOT_HAS_STDINT
 #include <proto.h>
 
 extern "C" void *_bootloader_start;
@@ -23,19 +23,19 @@ bool memmap::iter(paddr_t *base, size_t *size, int *type, void **ctx) {
         case 0: {
             *base = BL_END;
             *size = memtop - BL_END;
-            *type = MACBOOT_MEMMAP_USABLE;
+            *type = LITTLEBOOT_MEMMAP_USABLE;
             break;
         }
         case 1: {
             *base = BL_BEGIN;
             *size = BL_END - BL_BEGIN;
-            *type = MACBOOT_MEMMAP_BOOTLOADER_RECLAIMABLE;
+            *type = LITTLEBOOT_MEMMAP_BOOTLOADER_RECLAIMABLE;
             break;
         }
         case 2: {
             *base = memstart;
             *size = BL_BEGIN - memstart;
-            *type = MACBOOT_MEMMAP_USABLE;
+            *type = LITTLEBOOT_MEMMAP_USABLE;
             break;
         }
         default:

@@ -2,7 +2,7 @@
 #include <arch/memmap.h>
 #include <arch/config.h>
 
-#define MACBOOT_HAS_STDINT
+#define LITTLEBOOT_HAS_STDINT
 #include <proto.h>
 
 bool memmap::iter(paddr_t *base, size_t *size, int *type, void **ctx) {
@@ -12,19 +12,19 @@ bool memmap::iter(paddr_t *base, size_t *size, int *type, void **ctx) {
         case 0: {
             *base = mem_reclaimable1_start;
             *size = mem_reclaimable1_size;
-            *type = MACBOOT_MEMMAP_BOOTLOADER_RECLAIMABLE;
+            *type = LITTLEBOOT_MEMMAP_BOOTLOADER_RECLAIMABLE;
             break;
         }
         case 1: {
             *base = mem_reclaimable2_start;
             *size = mem_reclaimable2_size;
-            *type = MACBOOT_MEMMAP_BOOTLOADER_RECLAIMABLE;
+            *type = LITTLEBOOT_MEMMAP_BOOTLOADER_RECLAIMABLE;
             break;
         }
         case 2: {
             *base = mem_usable_start;
             *size = mem_usable_size;
-            *type = MACBOOT_MEMMAP_USABLE;
+            *type = LITTLEBOOT_MEMMAP_USABLE;
             break;
         }
         default:

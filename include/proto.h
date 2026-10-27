@@ -1,7 +1,7 @@
 #ifndef _PROTO_H
 #define _PROTO_H
 
-#ifndef MACBOOT_HAS_STDINT
+#ifndef LITTLEBOOT_HAS_STDINT
 #include <stdint.h>
 #endif
 
@@ -13,83 +13,83 @@
 extern "C" {
 #endif
 
-typedef uint32_t macboot_size_t;
-typedef uint32_t macboot_uintptr_t;
-typedef uint32_t macboot_paddr_t;
+typedef uint32_t littleboot_size_t;
+typedef uint32_t littleboot_uintptr_t;
+typedef uint32_t littleboot_paddr_t;
 
-#define MACBOOT_KERNEL_HEADER_ID \
+#define LITTLEBOOT_KERNEL_HEADER_ID \
     { MAGIC1, MAGIC3 }
-struct __attribute__((packed)) macboot_kernel_header {
+struct __attribute__((packed)) littleboot_kernel_header {
     uint64_t id[2];
-    macboot_uintptr_t load_address; // physical address where kernel executable will be loaded
-    macboot_uintptr_t load_end_address; // physical end address of kernel executable (including .bss) - NOT the size on disk
+    littleboot_uintptr_t load_address; // physical address where kernel executable will be loaded
+    littleboot_uintptr_t load_end_address; // physical end address of kernel executable (including .bss) - NOT the size on disk
     void (*kmain)();
 };
 
-struct __attribute__((packed)) macboot_kmem_response {
-    macboot_uintptr_t base;
-    macboot_size_t size;
+struct __attribute__((packed)) littleboot_kmem_response {
+    littleboot_uintptr_t base;
+    littleboot_size_t size;
 };
 
-#define MACBOOT_KMEM_REQUEST_ID \
+#define LITTLEBOOT_KMEM_REQUEST_ID \
     { MAGIC1, MAGIC2(1), MAGIC3 }
-struct __attribute__((packed)) macboot_kmem_request {
+struct __attribute__((packed)) littleboot_kmem_request {
     uint64_t id[3];
-    struct macboot_kmem_response *response;
+    struct littleboot_kmem_response *response;
 };
 
-#define MACBOOT_MEMMAP_USABLE                 (1)
-#define MACBOOT_MEMMAP_RESERVED               (2)
-#define MACBOOT_MEMMAP_BOOTLOADER_RECLAIMABLE (3)
-struct __attribute__((packed)) macboot_memmap_response {
-    macboot_paddr_t base;
-    macboot_size_t size;
+#define LITTLEBOOT_MEMMAP_USABLE                 (1)
+#define LITTLEBOOT_MEMMAP_RESERVED               (2)
+#define LITTLEBOOT_MEMMAP_BOOTLOADER_RECLAIMABLE (3)
+struct __attribute__((packed)) littleboot_memmap_response {
+    littleboot_paddr_t base;
+    littleboot_size_t size;
     int type;
-    struct macboot_memmap_response *next;
+    struct littleboot_memmap_response *next;
 };
 
-#define MACBOOT_MEMMAP_REQUEST_ID \
+#define LITTLEBOOT_MEMMAP_REQUEST_ID \
     { MAGIC1, MAGIC2(2), MAGIC3 }
-struct __attribute__((packed)) macboot_memmap_request {
+struct __attribute__((packed)) littleboot_memmap_request {
     uint64_t id[3];
-    struct macboot_memmap_response *response;
+    struct littleboot_memmap_response *response;
 };
 
-struct __attribute__((packed)) macboot_framebuffer_response {
-    macboot_uintptr_t base;
-    macboot_size_t width;
-    macboot_size_t height;
-    macboot_size_t pitch;
+struct __attribute__((packed)) littleboot_framebuffer_response {
+    littleboot_uintptr_t base;
+    littleboot_size_t width;
+    littleboot_size_t height;
+    littleboot_size_t pitch;
     unsigned short bpp;
 };
 
-#define MACBOOT_FRAMEBUFFER_REQUEST_ID \
+#define LITTLEBOOT_FRAMEBUFFER_REQUEST_ID \
     { MAGIC1, MAGIC2(3), MAGIC3 }
-struct __attribute__((packed)) macboot_framebuffer_request {
+struct __attribute__((packed)) littleboot_framebuffer_request {
     uint64_t id[3];
-    struct macboot_framebuffer_response *response;
+    struct littleboot_framebuffer_response *response;
 };
 
-struct __attribute__((packed)) macboot_cmdline_response {
+struct __attribute__((packed)) littleboot_cmdline_response {
     const char *cmdline;
 };
 
-#define MACBOOT_CMDLINE_REQUEST_ID \
+#define LITTLEBOOT_CMDLINE_REQUEST_ID \
     { MAGIC1, MAGIC2(4), MAGIC3 }
-struct __attribute__((packed)) macboot_cmdline_request {
+struct __attribute__((packed)) littleboot_cmdline_request {
     uint64_t id[3];
-    struct macboot_cmdline_response *response;
+    struct littleboot_cmdline_response *response;
 };
 
-struct __attribute__((packed)) macboot_terminal_response {
+struct __attribute__((packed)) littleboot_terminal_response {
     void (*puts)(const char *str);
 };
 
-#define MACBOOT_TERMINAL_REQUEST_ID \
+#define LITTLEBOOT_TERMINAL_REQUEST_ID \
     { MAGIC1, MAGIC2(5), MAGIC3 }
-struct __attribute__((packed)) macboot_terminal_request {
+struct __attribute__((packed)) littleboot_terminal_request {
     uint64_t id[3];
-    struct macboot_terminal_response *response;
+    struct littleboot_terminal_response *response;
 };
 
 #ifdef __cplusplus

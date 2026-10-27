@@ -17,7 +17,7 @@ void start() {
     bumpalloc_init();
     screen::init();
     screen::clear();
-    screen::puts("OK    welcome to the funne bootloader\n");
+    screen::puts("OK    hiiiiii\n");
 
     // experiments();
 
