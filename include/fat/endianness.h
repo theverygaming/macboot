@@ -2,6 +2,8 @@
 #include <types.h>
 
 template <typename T> T swap_le(T x) {
+// https://stackoverflow.com/a/9154012
+#if defined(__BYTE_ORDER__)&&(__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
     union s {
         T x;
         uint8_t p[sizeof(T)];
@@ -13,4 +15,7 @@ template <typename T> T swap_le(T x) {
     }
 
     return out.x;
+#else
+    return x;
+#endif
 }
