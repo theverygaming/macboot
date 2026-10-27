@@ -15,11 +15,10 @@ include ./src/arch/$(ARCH)/Makefile
 
 all:
 	@mkdir -p obj
-	@$(MAKE) kernel
+	@$(MAKE) kernel.bin
 
-kernel: $(OBJECTS_CPP)
+kernel.o: $(OBJECTS_CPP)
 	@$(LD) -T ./src/arch/$(ARCH)/linker.ld $(LDFLAGS) $^ -o kernel.o
-	@$(OBJCOPY) -O binary kernel.o kernel
 
 obj/%.o: src/%.cpp
 	@echo "    CXX $<"
@@ -27,5 +26,5 @@ obj/%.o: src/%.cpp
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	@rm -f kernel
+	@rm -f kernel.bin
 	@find . -name '*.o' -type f -delete

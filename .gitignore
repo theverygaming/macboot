@@ -1,7 +1,6 @@
 .vscode/
 *.o
 obj/
-startup
-example/kernel
+*.bin
 disk.img
 fs.img

@@ -20,12 +20,10 @@ include ./src/arch/$(ARCH)/Makefile
 
 all: 
 	@mkdir -p obj
-	@$(MAKE) startup
+	@$(MAKE) startup.bin
 
-startup: $(OBJECTS_ASM) $(OBJECTS_CPP)
+startup.o: $(OBJECTS_ASM) $(OBJECTS_CPP)
 	@$(LD) -T ./src/arch/$(ARCH)/linker.ld $(LDFLAGS) $^ -o startup.o
-	@$(OBJCOPY) -O binary startup.o startup
-	@truncate -s 12288 startup
 
 obj/%.o: src/%.cpp
 	@echo "    CXX $<"
@@ -43,5 +41,5 @@ obj/%.o: src/%.s
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	@rm -f startup
+	@rm -f startup.bin
 	@find . -name '*.o' -type f -delete
