@@ -42,6 +42,6 @@ bool memmap::iter(paddr_t *base, size_t *size, int *type, void **ctx) {
             return false;
     }
 
-    *ctx = (void *)i + 1;
+    *ctx = (void *)(i + 1);
     return true;
 }
