@@ -64,6 +64,23 @@
             }'
           '';
         };
+        packages.littleboot-funnyarch = pkgs.stdenv.mkDerivation rec {
+          name = "littleboot-funnyarch";
+
+          src = ./.;
+
+          buildInputs = with pkgs; [
+            funnyarch.packages.${system}.toolchain
+            funnyarch.packages.${system}.gcc
+          ];
+
+          ARCH = "funnyarch";
+          CROSS_COMPILE = "funnyarch-none-none-";
+
+          installPhase = ''
+            cp startup.bin $out
+          '';
+        };
       }
     );
 }
