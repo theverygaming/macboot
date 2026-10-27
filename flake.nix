@@ -64,6 +64,10 @@
             }'
           '';
         };
+        packages.littleboot-headers = pkgs.runCommand "littleboot-headers" { } ''
+          mkdir -p "$out"/include/littleboot
+          cp ${./include/proto.h} "$out"/include/littleboot/proto.h
+        '';
         packages.littleboot-funnyarch = pkgs.stdenv.mkDerivation rec {
           name = "littleboot-funnyarch";
 
