@@ -29,8 +29,8 @@ bool disk::read(uint32_t offset, void *_buf, size_t n) {
         return s;
     } else {
         while (n != 0) {
-            uint32_t read = std::min(n, (size_t)512);
             uint32_t boff = offset % 512;
+            uint32_t read = std::min(n, (size_t)512 - boff);
             if (!rom::read_boot_disk(offset - boff, buf_l, 1)) {
                 bump_dealloc(512);
                 return false;
