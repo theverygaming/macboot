@@ -4,13 +4,6 @@
 #include <types.h>
 #include <bumpalloc.h>
 
-extern "C" void *_bss_start;
-extern "C" void *_bss_end;
-
-static void clearbss() {
-    memset((void *)&_bss_start, 0, (uint32_t)&_bss_end - (uint32_t)&_bss_start);
-}
-
 static void die() {
     screen::puts("ERR   unable to boot\nERR   halt\n");
     while (true) {
@@ -20,8 +13,7 @@ static void die() {
 
 void experiments();
 
-extern "C" void _cppentry() {
-    clearbss();
+void start() {
     bumpalloc_init();
     screen::init();
     screen::clear();
