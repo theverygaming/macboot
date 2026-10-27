@@ -1,4 +1,4 @@
 CXXFLAGS += -munaligned-access -fno-merge-constants
 
 startup.bin: startup.o
-	@cp startup.o startup.bin
+	@$(OBJCOPY) -O binary startup.o startup.bin

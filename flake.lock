@@ -44,11 +44,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793099279,
-        "narHash": "sha256-GNqu9b0wPauxTVpzRiXtMLQMP6u0/aC0f8spBxXTA+0=",
+        "lastModified": 1793141999,
+        "narHash": "sha256-ii4BmO9EdmK+eVYS/NZGajt6CT5bAlvbgozraOjuwwI=",
         "owner": "theverygaming",
         "repo": "funnyarch",
-        "rev": "cf82a5c89be5af706da0bd0ab4e69c12d4765ac0",
+        "rev": "34bd378dbefa1e3c944eebff8cd363e591832489",
         "type": "github"
       },
       "original": {
