@@ -8,10 +8,10 @@ namespace screen {
     void puts(const char *str, size_t len);
     extern struct fbinfo {
         void *base;
-        uint32_t width;
-        uint32_t height;
-        uint32_t pitch;
-        uint32_t bpp;
+        size_t width;
+        size_t height;
+        size_t pitch;
+        unsigned short bpp;
         bool indexed;
         bool bit_be; // if true the rightmost pixel is LSB, not MSB
     } fb;
