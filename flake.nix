@@ -8,6 +8,10 @@
       url = "github:theverygaming/nix-repo";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    funnyarch = {
+      url = "github:theverygaming/funnyarch";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -16,6 +20,7 @@
       nixpkgs,
       flake-utils,
       nur-theverygaming,
+      funnyarch,
     }:
     { }
     // flake-utils.lib.eachDefaultSystem (
@@ -41,6 +46,23 @@
             ++ common-deps;
           ARCH = "m68k";
           CROSS_COMPILE = "m68k-unknown-linux-gnu-";
+        };
+        devShells.funnyarch = pkgs.stdenv.mkDerivation {
+          name = "macboot dev funnyarch";
+          buildInputs =
+            with pkgs;
+            [
+              funnyarch.packages.${system}.toolchain
+              funnyarch.packages.${system}.gcc
+            ]
+            ++ common-deps;
+          ARCH = "funnyarch";
+          CROSS_COMPILE = "funnyarch-none-none-";
+          shellHook = ''
+            alias funnyarch-emu='${funnyarch.packages.${system}.emulator}/bin/funnyarch-emulator -r ${
+              funnyarch.packages.${system}.rom
+            }'
+          '';
         };
       }
     );
