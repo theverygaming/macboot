@@ -9,9 +9,8 @@ static int fgetc(struct fat_driver_state *fs, struct fat_file_handle *ff) {
     return r;
 }
 
-// str will be null-terminated (str_len includes null termination) - if value does not fit in str it will be cut off
-bool get_cfg_value(struct fat_driver_state *fs, struct fat_file_handle *ff, const char *key, char *str, size_t str_len) {
-    fat_seek(fs, ff, 0, FAT_SEEK_BEGIN);
+bool get_cfg_value(struct fat_driver_state *fs, struct fat_file_handle *ff, const char *key, char *str, size_t str_len, size_t *seek_pos) {
+    fat_seek(fs, ff, seek_pos != nullptr ? *seek_pos : 0, FAT_SEEK_BEGIN);
     // search for the key
     while (true) {
         const char *key_inc = key;
@@ -37,6 +36,9 @@ bool get_cfg_value(struct fat_driver_state *fs, struct fat_file_handle *ff, cons
                 break;
             }
         }
+    }
+    if (seek_pos != nullptr) {
+        *seek_pos = fat_seek(fs, ff, 0, FAT_SEEK_CURRENT);
     }
     // write value
     size_t counter = 0;

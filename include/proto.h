@@ -92,6 +92,19 @@ struct __attribute__((packed)) littleboot_terminal_request {
     struct littleboot_terminal_response *response;
 };
 
+struct __attribute__((packed)) littleboot_module_response {
+    void *address;
+    littleboot_size_t size;
+    struct littleboot_module_response *next;
+};
+
+#define LITTLEBOOT_MODULE_REQUEST_ID \
+    { MAGIC1, MAGIC2(6), MAGIC3 }
+struct __attribute__((packed)) littleboot_module_request {
+    uint64_t id[3];
+    struct littleboot_module_response *response;
+};
+
 #ifdef __cplusplus
 }
 #endif

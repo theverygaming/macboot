@@ -184,6 +184,54 @@ void boot() {
             rs->puts = &screen::puts;
             break;
         }
+        case 6: { // module
+            struct littleboot_module_request *rq = (struct littleboot_module_request *)ptr;
+            struct littleboot_module_response *prev_rs = nullptr;
+
+            size_t seek_pos = 0;
+            char modulepath[30];
+            while (get_cfg_value(&fat, &config_file, "MODULE_PATH", modulepath, sizeof(modulepath), &seek_pos)) {
+                screen::puts("OK    loading module: ");
+                screen::puts(modulepath);
+                screen::puts("\n");
+
+                struct fat_file_handle module_file;
+                if (!fat_open_file(&fat, &module_file, modulepath)) {
+                    screen::puts("ERR   could not find module\n");
+                    return;
+                }
+                screen::puts("OK    opened module file\n");
+
+                size_t data_size = fat_seek(&fat, &module_file, 0, FAT_SEEK_END);
+                void *data = bump_malloc(data_size);
+                if (data == nullptr) {
+                    screen::puts("ERR   out of memory\n");
+                    return;
+                }
+
+                fat_seek(&fat, &module_file, 0, FAT_SEEK_BEGIN);
+                if (fat_read(&fat, &module_file, data, data_size) != data_size) {
+                    screen::puts("ERR   error reading module from disk\n");
+                    return;
+                }
+
+                struct littleboot_module_response *rs = (struct littleboot_module_response *)bump_malloc(sizeof(struct littleboot_module_response));
+                if (rs == nullptr) {
+                    screen::puts("ERR   out of memory\n");
+                    return;
+                }
+                rs->address = data;
+                rs->size = data_size;
+                rs->next = nullptr;
+                if (prev_rs != nullptr) {
+                    prev_rs->next = rs;
+                } else {
+                    rq->response = rs;
+                }
+                prev_rs = rs;
+            }
+            break;
+        }
         }
     }
 

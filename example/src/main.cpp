@@ -22,6 +22,7 @@ header = {.id = LITTLEBOOT_KERNEL_HEADER_ID, .load_address = (littleboot_uintptr
 static volatile struct littleboot_terminal_request term = {.id = LITTLEBOOT_TERMINAL_REQUEST_ID, .response = nullptr};
 static volatile struct littleboot_cmdline_request cmdline = {.id = LITTLEBOOT_CMDLINE_REQUEST_ID, .response = nullptr};
 static volatile struct littleboot_framebuffer_request fb = {.id = LITTLEBOOT_FRAMEBUFFER_REQUEST_ID, .response = nullptr};
+static volatile struct littleboot_module_request module = {.id = LITTLEBOOT_MODULE_REQUEST_ID, .response = nullptr};
 
 void kmain() {
     if (term.response != nullptr) {
@@ -34,6 +35,20 @@ void kmain() {
     }
     if (fb.response != nullptr) {
         *((uint32_t *)fb.response->base) = 0xFF5555FF;
+    }
+    if (module.response != nullptr) {
+        struct littleboot_module_response *resp = module.response;
+        while (resp != nullptr) {
+            // if the module is null-terminated we try and print it's contents as a string
+            if (*((uint8_t *)resp->address + (resp->size - 1)) == 0) {
+                if (term.response != nullptr) {
+                    term.response->puts("module content: ");
+                    term.response->puts((const char *)resp->address);
+                    term.response->puts("\n");
+                }
+            }
+            resp = resp->next;
+        }
     }
     die();
 }

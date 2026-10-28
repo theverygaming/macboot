@@ -16,11 +16,11 @@ SOURCES_ASM = $(shell $(_FIND_WITH_ARCH) \( -name "*.S" -o -name "*.s" \) -print
 
 OBJECTS_ASM = $(patsubst ./src/%, ./obj/%,$(patsubst %.S, %.o, $(patsubst %.s, %.o, $(SOURCES_ASM))))
 
-include ./src/arch/$(ARCH)/Makefile
-
 all: 
 	@mkdir -p obj
 	@$(MAKE) startup.bin
+
+include ./src/arch/$(ARCH)/Makefile
 
 startup.o: $(OBJECTS_ASM) $(OBJECTS_CPP)
 	@$(LD) -T ./src/arch/$(ARCH)/linker.ld $(LDFLAGS) $^ -o startup.o
